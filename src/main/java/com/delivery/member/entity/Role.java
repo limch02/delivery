@@ -2,5 +2,6 @@ package com.delivery.member.entity;
 
 public enum Role {
 	OWNER,
-	CUSTOMER
+	CUSTOMER,
+	ADMIN
 }
