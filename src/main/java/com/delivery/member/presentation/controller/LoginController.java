@@ -1,4 +1,4 @@
-package com.delivery.member.controller;
+package com.delivery.member.presentation.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.delivery.common.response.ApiResponse;
-import com.delivery.member.dto.LoginRequest;
-import com.delivery.member.dto.LoginResponse;
-import com.delivery.member.service.MemberService;
+import com.delivery.member.presentation.dto.LoginRequest;
+import com.delivery.member.presentation.dto.LoginResponse;
+import com.delivery.member.application.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
-public class MemberController {
+public class LoginController {
 
     private final MemberService memberService;
 

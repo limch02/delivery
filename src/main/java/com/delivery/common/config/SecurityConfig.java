@@ -27,7 +27,7 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/members/login").permitAll()
+                .requestMatchers("/api/members/login", "/signup").permitAll()
                 .anyRequest().permitAll()
             );
         return http.build();
