@@ -4,6 +4,8 @@ import com.delivery.common.response.ApiResponse;
 import com.delivery.member.application.service.MemberService;
 import com.delivery.member.presentation.dto.SignUpRequest;
 import com.delivery.member.presentation.dto.SignUpResponse;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,7 @@ public class SignUpController {
 
 	@PostMapping
 	public ResponseEntity<ApiResponse<SignUpResponse>> signUp(
-		@RequestBody SignUpRequest request
+		@Valid @RequestBody SignUpRequest request
 	) {
 		SignUpResponse response = memberService.signUp(request);
 		return ResponseEntity.ok(ApiResponse.success(response));

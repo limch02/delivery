@@ -8,9 +8,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.delivery.common.response.ApiResponse;
+import com.delivery.member.exception.MemberException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	@ExceptionHandler(MemberException.class)
+	public ResponseEntity<ApiResponse<?>> handleMemberException(MemberException e) {
+		HttpStatus status = switch (e.getErrorCode()) {
+			case DUPLICATE_EMAIL -> HttpStatus.CONFLICT;
+			case MEMBER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case INVALID_PASSWORD -> HttpStatus.UNAUTHORIZED;
+			case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+		};
+		return ResponseEntity
+			.status(status)
+			.body(ApiResponse.fail(e.getMessage()));
+	}
 
 	@ExceptionHandler(CustomException.class)
 	public ResponseEntity<ApiResponse<?>> handleCustomException(CustomException e) {
