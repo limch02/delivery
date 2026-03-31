@@ -2,11 +2,16 @@ package com.delivery.member.application.service;
 
 import com.delivery.common.exception.CommonErrorCode;
 import com.delivery.common.exception.CustomException;
+import com.delivery.common.security.JwtProvider;
 import com.delivery.member.entity.Member;
 import com.delivery.member.entity.Role;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.delivery.member.presentation.dto.LoginRequest;
+import com.delivery.member.presentation.dto.LoginResponse;
 import com.delivery.member.presentation.dto.SignUpRequest;
 import com.delivery.member.presentation.dto.SignUpResponse;
 import com.delivery.member.repository.MemberRepository;
@@ -20,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberService {
 	private final MemberRepository memberRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtProvider jwtProvider;
 
 	public SignUpResponse signUp(SignUpRequest request) {
 		if (request == null) {
@@ -40,7 +47,7 @@ public class MemberService {
 
 		Member member = new Member(
 			email,
-			password,
+			passwordEncoder.encode(password),
 			phoneNum,
 			role,
 			address
@@ -49,6 +56,19 @@ public class MemberService {
 		Member saved = memberRepository.save(member);
 
 		return toResponse(saved.getMember_id(), saved.getEmail(), saved.getPhone_num(), saved.getRole(), saved.getAddress());
+	}
+
+	@Transactional(readOnly = true)
+	public LoginResponse login(LoginRequest request) {
+		Member member = memberRepository.findByEmail(request.getEmail())
+			.orElseThrow(() -> new CustomException(CommonErrorCode.MEMBER_NOT_FOUND));
+
+		if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+			throw new CustomException(CommonErrorCode.INVALID_PASSWORD);
+		}
+
+		String accessToken = jwtProvider.createToken(member.getEmail());
+		return LoginResponse.of(accessToken);
 	}
 
 	private void validateInputs(String email, String password, String phoneNum) {
@@ -60,7 +80,7 @@ public class MemberService {
 			throw new CustomException(CommonErrorCode.INVALID_INPUT);
 		}
 
-		if (!phoneNum.matches("^\\d{13}$")) {
+		if (!phoneNum.matches("^\\d{2,3}-\\d{3,4}-\\d{4}$")) {
 			throw new CustomException(CommonErrorCode.INVALID_INPUT);
 		}
 	}

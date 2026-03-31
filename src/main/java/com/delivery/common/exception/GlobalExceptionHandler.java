@@ -20,6 +20,15 @@ public class GlobalExceptionHandler {
 			.body(ApiResponse.fail(errorCode.getMessage()));
 	}
 
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException e) {
+		FieldError fieldError = e.getBindingResult().getFieldError();
+		String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : CommonErrorCode.INVALID_INPUT.getMessage();
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(ApiResponse.fail(errorMessage));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
 		return ResponseEntity
