@@ -1,4 +1,4 @@
-package com.delivery.member.entity;
+package com.delivery.member.domain;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;

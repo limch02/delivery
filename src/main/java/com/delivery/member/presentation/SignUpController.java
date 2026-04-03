@@ -1,7 +1,9 @@
-package com.delivery.member.presentation.controller;
+package com.delivery.member.presentation;
 
 import com.delivery.common.response.ApiResponse;
-import com.delivery.member.application.service.MemberService;
+import com.delivery.member.application.MemberService;
+import com.delivery.member.application.dto.SignUpCommand;
+import com.delivery.member.application.dto.SignUpResult;
 import com.delivery.member.presentation.dto.SignUpRequest;
 import com.delivery.member.presentation.dto.SignUpResponse;
 
@@ -23,7 +25,8 @@ public class SignUpController {
 	public ResponseEntity<ApiResponse<SignUpResponse>> signUp(
 		@Valid @RequestBody SignUpRequest request
 	) {
-		SignUpResponse response = memberService.signUp(request);
-		return ResponseEntity.ok(ApiResponse.success(response));
+		SignUpCommand command = request.toCommand();
+		SignUpResult result = memberService.signUp(command);
+		return ResponseEntity.ok(ApiResponse.success(SignUpResponse.from(result)));
 	}
 }
