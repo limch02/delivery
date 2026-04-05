@@ -1,6 +1,0 @@
-package com.delivery.member.infrastructure;
-
-public interface PasswordEncoder {
-	String encode(String rawPassword);
-	boolean matches(String rawPassword, String encodedPassword);
-}

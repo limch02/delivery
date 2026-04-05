@@ -2,6 +2,7 @@ package com.delivery.member.infrastructure;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import com.delivery.member.application.port.PasswordEncoder;
 
 @Component
 public class BcryptPasswordEncoder implements PasswordEncoder {
