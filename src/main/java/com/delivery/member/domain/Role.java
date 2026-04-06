@@ -1,4 +1,4 @@
-package com.delivery.member.entity;
+package com.delivery.member.domain;
 
 public enum Role {
 	OWNER,

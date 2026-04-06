@@ -1,13 +1,14 @@
 package com.delivery.common.exception;
 
-import lombok.Getter;
+public abstract class CustomException extends RuntimeException {
+	private final ErrorCode errorCode;
 
-@Getter
-public class CustomException extends RuntimeException {
-	private final CommonErrorCode errorCode;
-
-	public CustomException(CommonErrorCode errorCode) {
+	public CustomException(ErrorCode errorCode) {
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
+	}
+
+	public String getErrorMessage() {
+		return errorCode.getMessage();
 	}
 }

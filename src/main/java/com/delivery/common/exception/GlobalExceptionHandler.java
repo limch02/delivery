@@ -8,22 +8,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.delivery.common.response.ApiResponse;
+import com.delivery.member.exception.MemberException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(CustomException.class)
-	public ResponseEntity<ApiResponse<?>> handleCustomException(CustomException e) {
-		CommonErrorCode errorCode = e.getErrorCode();
+	@ExceptionHandler(MemberException.class)
+	public ResponseEntity<ApiResponse<?>> handleMemberException(MemberException e) {
+		HttpStatus status = switch (e.getMemberErrorCode()) {
+			case DUPLICATE_EMAIL -> HttpStatus.CONFLICT;
+			case MEMBER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case INVALID_PASSWORD, UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+		};
 		return ResponseEntity
-			.status(errorCode.getStatus())
-			.body(ApiResponse.fail(errorCode.getMessage()));
+			.status(status)
+			.body(ApiResponse.fail(e.getErrorMessage()));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException e) {
 		FieldError fieldError = e.getBindingResult().getFieldError();
-		String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : CommonErrorCode.INVALID_INPUT.getMessage();
+		String errorMessage = fieldError != null ? fieldError.getDefaultMessage() : "잘못된 입력값입니다.";
 		return ResponseEntity
 			.status(HttpStatus.BAD_REQUEST)
 			.body(ApiResponse.fail(errorMessage));

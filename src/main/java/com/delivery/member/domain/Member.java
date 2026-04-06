@@ -1,4 +1,4 @@
-package com.delivery.member.entity;
+package com.delivery.member.domain;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
@@ -44,5 +44,13 @@ public class Member {
 		this.phone_num = phoneNum;
 		this.role = role;
 		this.address = address;
+	}
+
+	public void validatePassword(boolean isValid) {
+		if (!isValid) {
+			throw new com.delivery.member.exception.MemberException(
+				com.delivery.member.exception.MemberErrorCode.INVALID_PASSWORD
+			);
+		}
 	}
 }
