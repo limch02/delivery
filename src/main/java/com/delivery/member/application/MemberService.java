@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.delivery.member.application.dto.LoginCommand;
-import com.delivery.member.application.dto.LoginResult;
+import com.delivery.member.application.dto.MemberResult;
 import com.delivery.member.application.dto.SignUpCommand;
 import com.delivery.member.repository.MemberRepository;
 
@@ -42,13 +42,19 @@ public class MemberService {
 	}
 
 	@Transactional(readOnly = true)
-	public LoginResult login(LoginCommand command) {
+	public String login(LoginCommand command) {
 		Member member = memberRepository.findByEmail(command.email())
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		member.validatePassword(passwordEncoder.matches(command.password(), member.getPassword()));
 
-		String accessToken = jwtProvider.createToken(member.getEmail());
-		return new LoginResult(accessToken);
+		return jwtProvider.createToken(member.getEmail());
+	}
+
+	@Transactional(readOnly = true)
+	public MemberResult getMemberByEmail(String email) {
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+		return MemberResult.from(member);
 	}
 }
