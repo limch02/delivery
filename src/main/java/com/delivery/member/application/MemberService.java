@@ -48,7 +48,7 @@ public class MemberService {
 
 		member.validatePassword(passwordEncoder.matches(command.password(), member.getPassword()));
 
-		return jwtProvider.createToken(member.getEmail());
+		return jwtProvider.createToken(member.getMember_id(), member.getRole().name());
 	}
 
 	@Transactional(readOnly = true)
