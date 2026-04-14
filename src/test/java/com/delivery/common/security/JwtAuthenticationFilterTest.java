@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import com.delivery.member.application.MemberUserDetailsService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -27,9 +27,6 @@ class JwtAuthenticationFilterTest {
 
     @Mock
     private JwtProvider jwtProvider;
-
-    @Mock
-    private MemberUserDetailsService userDetailsService;
 
     @InjectMocks
     private JwtAuthenticationFilter filter;
@@ -46,17 +43,17 @@ class JwtAuthenticationFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain filterChain = mock(FilterChain.class);
 
-        UserDetails userDetails = User.builder()
-                .username("test@test.com").password("pw").roles("CUSTOMER").build();
+        var authentication = new UsernamePasswordAuthenticationToken(
+            "1", null, List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
+        );
 
         when(jwtProvider.validateToken("valid.token")).thenReturn(true);
-        when(jwtProvider.getEmail("valid.token")).thenReturn("test@test.com");
-        when(userDetailsService.loadUserByUsername("test@test.com")).thenReturn(userDetails);
+        when(jwtProvider.getAuthentication("valid.token")).thenReturn(authentication);
 
         filter.doFilterInternal(request, response, filterChain);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("test@test.com");
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("1");
         verify(filterChain).doFilter(request, response);
     }
 
