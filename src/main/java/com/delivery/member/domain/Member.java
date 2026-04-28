@@ -46,6 +46,10 @@ public class Member {
 		this.address = address;
 	}
 
+	public void updateAddress(String address) {
+		this.address = address;
+	}
+
 	public void validatePassword(boolean isValid) {
 		if (!isValid) {
 			throw new com.delivery.member.exception.MemberException(

@@ -57,4 +57,11 @@ public class MemberService {
 				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 		return MemberResult.from(member);
 	}
+
+	public String updateAddress(String email, String newAddress) {
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+		member.updateAddress(newAddress);
+		return member.getAddress();
+	}
 }
