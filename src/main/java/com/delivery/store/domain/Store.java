@@ -69,12 +69,8 @@ public class Store {
 		this.closeTime = closeTime;
 	}
 
-	public void validateOwner(String email) {
-		if (!this.owner.getEmail().equals(email)) {
-			throw new com.delivery.store.exception.StoreException(
-				com.delivery.store.exception.StoreErrorCode.NOT_STORE_OWNER
-			);
-		}
+	public boolean isOwnedBy(String email) {
+		return this.owner.getEmail().equals(email);
 	}
 
 	public void update(String name, String category, int minOrderPrice, int deliveryFee,
