@@ -65,7 +65,9 @@ public class StoreService {
 		Store store = storeRepository.findByIdWithOwner(storeId)
 				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 
-		store.validateOwner(email);
+		if (!store.isOwnedBy(email)) {
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 		store.update(command.name(), command.category(), command.minOrderPrice(), command.deliveryFee(),
 				command.address(), command.phone(), command.openTime(), command.closeTime());
 	}
@@ -75,7 +77,9 @@ public class StoreService {
 		Store store = storeRepository.findByIdWithOwner(storeId)
 				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 
-		store.validateOwner(email);
+		if (!store.isOwnedBy(email)) {
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 		storeRepository.delete(store);
 	}
 }
