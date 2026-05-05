@@ -57,14 +57,25 @@ public class MenuService {
 	}
 
 	@Transactional
-	public void toggleSoldOut(String email, Long storeId, Long menuId) {
+	public void markAsSoldOut(String email, Long storeId, Long menuId) {
 		Menu menu = menuRepository.findByIdAndStoreIdWithOwner(menuId, storeId)
 				.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 
-		if(!menu.validateOwner(email)){
+		if (!menu.validateOwner(email)) {
 			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
 		}
-		menu.toggleSoldOut();
+		menu.markAsSoldOut();
+	}
+
+	@Transactional
+	public void markAsAvailable(String email, Long storeId, Long menuId) {
+		Menu menu = menuRepository.findByIdAndStoreIdWithOwner(menuId, storeId)
+				.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
+
+		if (!menu.validateOwner(email)) {
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
+		menu.markAsAvailable();
 	}
 
 	@Transactional

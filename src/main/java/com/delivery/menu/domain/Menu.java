@@ -61,7 +61,11 @@ public class Menu {
 		return this.store.getOwner().getEmail().equals(email);
 	}
 
-	public void toggleSoldOut() {
-		this.soldOut = !this.soldOut;
+	public void markAsSoldOut() {
+		this.soldOut = true;
+	}
+
+	public void markAsAvailable() {
+		this.soldOut = false;
 	}
 }

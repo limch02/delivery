@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,12 +73,22 @@ public class MenuController {
 	}
 
 	@PatchMapping("/{menuId}/sold-out")
-	public ResponseEntity<ApiResponse<Void>> toggleSoldOut(
+	public ResponseEntity<ApiResponse<Void>> markAsSoldOut(
 			@AuthenticationPrincipal UserDetails userDetails,
 			@PathVariable Long storeId,
 			@PathVariable Long menuId
 	) {
-		menuService.toggleSoldOut(userDetails.getUsername(), storeId, menuId);
+		menuService.markAsSoldOut(userDetails.getUsername(), storeId, menuId);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@PatchMapping("/{menuId}/in-stock")
+	public ResponseEntity<ApiResponse<Void>> markAsAvailable(
+			@AuthenticationPrincipal UserDetails userDetails,
+			@PathVariable Long storeId,
+			@PathVariable Long menuId
+	) {
+		menuService.markAsAvailable(userDetails.getUsername(), storeId, menuId);
 		return ResponseEntity.ok(ApiResponse.success());
 	}
 }
