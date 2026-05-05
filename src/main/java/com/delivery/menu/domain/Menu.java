@@ -1,5 +1,7 @@
 package com.delivery.menu.domain;
 
+import com.delivery.menu.exception.MenuErrorCode;
+import com.delivery.menu.exception.MenuException;
 import com.delivery.store.domain.Store;
 
 import jakarta.persistence.Column;
@@ -53,6 +55,10 @@ public class Menu {
 		this.name = name;
 		this.price = price;
 		this.description = description;
+	}
+
+	public boolean validateOwner(String email) {
+		return this.store.getOwner().getEmail().equals(email);
 	}
 
 	public void toggleSoldOut() {

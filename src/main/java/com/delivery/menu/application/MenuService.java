@@ -36,40 +36,34 @@ public class MenuService {
 
 	@Transactional
 	public void updateMenu(String email, Long storeId, Long menuId, MenuUpdateCommand command) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
-		store.validateOwner(email);
-
-		Menu menu = menuRepository.findByIdAndStoreId(menuId, storeId)
+		Menu menu = menuRepository.findByIdAndStoreIdWithOwner(menuId, storeId)
 				.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 
+		if(!menu.validateOwner(email)){
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 		menu.update(command.name(), command.price(), command.description());
 	}
 
 	@Transactional
 	public void deleteMenu(String email, Long storeId, Long menuId) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
-		store.validateOwner(email);
-
-		Menu menu = menuRepository.findByIdAndStoreId(menuId, storeId)
+		Menu menu = menuRepository.findByIdAndStoreIdWithOwner(menuId, storeId)
 				.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 
+		if(!menu.validateOwner(email)){
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 		menuRepository.delete(menu);
 	}
 
 	@Transactional
 	public void toggleSoldOut(String email, Long storeId, Long menuId) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
-		store.validateOwner(email);
-
-		Menu menu = menuRepository.findByIdAndStoreId(menuId, storeId)
+		Menu menu = menuRepository.findByIdAndStoreIdWithOwner(menuId, storeId)
 				.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 
+		if(!menu.validateOwner(email)){
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 		menu.toggleSoldOut();
 	}
 
@@ -78,7 +72,9 @@ public class MenuService {
 		Store store = storeRepository.findByIdWithOwner(storeId)
 				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 
-		store.validateOwner(email);
+		if (!store.isOwnedBy(email)) {
+			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
+		}
 
 		menuRepository.save(new Menu(store, command.name(), command.price(), command.description()));
 	}
