@@ -3,6 +3,7 @@ package com.delivery.member.application;
 import com.delivery.common.security.JwtProvider;
 import com.delivery.member.application.port.PasswordEncoder;
 import com.delivery.member.domain.Member;
+import com.delivery.member.domain.Role;
 import com.delivery.member.exception.MemberErrorCode;
 import com.delivery.member.exception.MemberException;
 
@@ -34,7 +35,7 @@ public class MemberService {
 			command.email(),
 			passwordEncoder.encode(command.password()),
 			command.phone_num(),
-			command.role(),
+			Role.CUSTOMER,
 			command.address()
 		);
 
