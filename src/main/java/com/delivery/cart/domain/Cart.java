@@ -66,6 +66,10 @@ public class Cart {
 		return cartItem;
 	}
 
+	public boolean isCreatedBy(String email) {
+		return member.hasEmail(email);
+	}
+
 	public void addMenu(Menu menu, int quantity) {
 		findItemByMenuId(menu.getMenu_id())
 			.ifPresentOrElse(
