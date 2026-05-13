@@ -50,6 +50,10 @@ public class Member {
 		this.address = address;
 	}
 
+	public boolean hasEmail(String email) {
+		return this.email.equals(email);
+	}
+
 	public void validatePassword(boolean isValid) {
 		if (!isValid) {
 			throw new com.delivery.member.exception.MemberException(

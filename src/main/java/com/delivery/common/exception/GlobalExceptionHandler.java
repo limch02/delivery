@@ -7,8 +7,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.delivery.cart.exception.CartException;
 import com.delivery.common.response.ApiResponse;
 import com.delivery.member.exception.MemberException;
+import com.delivery.menu.exception.MenuException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,6 +21,30 @@ public class GlobalExceptionHandler {
 			case DUPLICATE_EMAIL -> HttpStatus.CONFLICT;
 			case MEMBER_NOT_FOUND -> HttpStatus.NOT_FOUND;
 			case INVALID_PASSWORD, UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+		};
+		return ResponseEntity
+			.status(status)
+			.body(ApiResponse.fail(e.getErrorMessage()));
+	}
+
+	@ExceptionHandler(MenuException.class)
+	public ResponseEntity<ApiResponse<?>> handleMenuException(MenuException e) {
+		HttpStatus status = switch (e.getMenuErrorCode()) {
+			case MENU_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case NOT_MENU_OWNER -> HttpStatus.FORBIDDEN;
+			case MENU_SOLD_OUT -> HttpStatus.BAD_REQUEST;
+		};
+		return ResponseEntity
+			.status(status)
+			.body(ApiResponse.fail(e.getErrorMessage()));
+	}
+
+	@ExceptionHandler(CartException.class)
+	public ResponseEntity<ApiResponse<?>> handleCartException(CartException e) {
+		HttpStatus status = switch (e.getCartErrorCode()) {
+			case DIFFERENT_STORE -> HttpStatus.BAD_REQUEST;
+			case CART_ITEM_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case CART_ITEM_FORBIDDEN -> HttpStatus.FORBIDDEN;
 		};
 		return ResponseEntity
 			.status(status)
