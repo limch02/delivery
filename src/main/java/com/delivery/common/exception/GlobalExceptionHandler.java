@@ -43,6 +43,8 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ApiResponse<?>> handleCartException(CartException e) {
 		HttpStatus status = switch (e.getCartErrorCode()) {
 			case DIFFERENT_STORE -> HttpStatus.BAD_REQUEST;
+			case CART_ITEM_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case CART_ITEM_FORBIDDEN -> HttpStatus.FORBIDDEN;
 		};
 		return ResponseEntity
 			.status(status)

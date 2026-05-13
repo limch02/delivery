@@ -1,8 +1,10 @@
 package com.delivery.cart.application;
 
 import com.delivery.cart.application.dto.CartAddCommand;
+import com.delivery.cart.application.dto.CartItemResult;
 import com.delivery.cart.application.dto.CartResult;
 import com.delivery.cart.domain.Cart;
+import com.delivery.cart.domain.CartItem;
 import com.delivery.cart.exception.CartErrorCode;
 import com.delivery.cart.exception.CartException;
 import com.delivery.cart.repository.CartItemRepository;
@@ -54,5 +56,31 @@ public class CartService {
 			);
 
 		return CartResult.from(cart, cart.getCartItems());
+	}
+
+	@Transactional
+	public CartItemResult increaseCartItemQuantity(String email, Long itemId) {
+		CartItem cartItem = findCartItemWithOwnerCheck(email, itemId);
+		cartItem.increaseQuantity();
+		return CartItemResult.from(cartItem);
+	}
+
+	@Transactional
+	public void decreaseCartItemQuantity(String email, Long itemId) {
+		CartItem cartItem = findCartItemWithOwnerCheck(email, itemId);
+		if (cartItem.getQuantity() == 1) {
+			cartItemRepository.delete(cartItem);
+			return;
+		}
+		cartItem.decreaseQuantity();
+	}
+
+	private CartItem findCartItemWithOwnerCheck(String email, Long itemId) {
+		CartItem cartItem = cartItemRepository.findByIdWithCartAndMember(itemId)
+			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
+		if (!cartItem.getCart().isCreatedBy(email)) {
+			throw new CartException(CartErrorCode.CART_ITEM_FORBIDDEN);
+		}
+		return cartItem;
 	}
 }

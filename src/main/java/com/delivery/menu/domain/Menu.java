@@ -62,7 +62,7 @@ public class Menu {
 	}
 
 	public boolean validateOwner(String email) {
-		return this.store.getOwner().getEmail().equals(email);
+		return store.isOwnedBy(email);
 	}
 
 	public void markAsSoldOut() {

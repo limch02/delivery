@@ -65,4 +65,8 @@ public class Cart {
 		cartItems.add(cartItem);
 		return cartItem;
 	}
+
+	public boolean isCreatedBy(String email) {
+		return member.hasEmail(email);
+	}
 }
