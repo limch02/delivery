@@ -47,11 +47,7 @@ public class CartService {
 			throw new CartException(CartErrorCode.DIFFERENT_STORE);
 		}
 
-		cart.findItemByMenuId(menu.getMenu_id())
-			.ifPresentOrElse(
-				existing -> existing.addQuantity(command.quantity()),
-				() -> cartItemRepository.save(cart.addItem(menu, command.quantity()))
-			);
+		cart.addMenu(menu, command.quantity());
 
 		return CartResult.from(cart, cart.getCartItems());
 	}

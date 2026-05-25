@@ -65,4 +65,12 @@ public class Cart {
 		cartItems.add(cartItem);
 		return cartItem;
 	}
+
+	public void addMenu(Menu menu, int quantity) {
+		findItemByMenuId(menu.getMenu_id())
+			.ifPresentOrElse(
+				existing -> existing.addQuantity(quantity),
+				() -> this.cartItems.add(new CartItem(this, menu, quantity))
+			);
+	}
 }
