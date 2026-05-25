@@ -38,23 +38,25 @@ public class CartController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
 	}
 
-	@PatchMapping("/items/{itemId}/increase")
+	@PatchMapping("/{cartId}/items/{menuId}/increase")
 	public ResponseEntity<ApiResponse<CartItemResponse>> increaseCartItem(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long itemId
+		@PathVariable Long cartId,
+		@PathVariable Long menuId
 	) {
 		CartItemResponse response = CartItemResponse.from(
-			cartService.increaseCartItemQuantity(userDetails.getUsername(), itemId)
+			cartService.increaseCartItemQuantity(userDetails.getUsername(), cartId, menuId)
 		);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
-	@PatchMapping("/items/{itemId}/decrease")
+	@PatchMapping("/{cartId}/items/{menuId}/decrease")
 	public ResponseEntity<ApiResponse<Void>> decreaseCartItem(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long itemId
+		@PathVariable Long cartId,
+		@PathVariable Long menuId
 	) {
-		cartService.decreaseCartItemQuantity(userDetails.getUsername(), itemId);
+		cartService.decreaseCartItemQuantity(userDetails.getUsername(), cartId, menuId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }

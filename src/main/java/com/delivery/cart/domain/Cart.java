@@ -42,7 +42,8 @@ public class Cart {
 	@JoinColumn(name = "store_id")
 	private Store store;
 
-	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "cart_id", nullable = false)
 	private List<CartItem> cartItems = new ArrayList<>();
 
 	public Cart(Member member, Store store) {
@@ -61,7 +62,7 @@ public class Cart {
 	}
 
 	public CartItem addItem(Menu menu, int quantity) {
-		CartItem cartItem = new CartItem(this, menu, quantity);
+		CartItem cartItem = new CartItem(menu, quantity);
 		cartItems.add(cartItem);
 		return cartItem;
 	}
@@ -74,11 +75,7 @@ public class Cart {
 		findItemByMenuId(menu.getMenu_id())
 			.ifPresentOrElse(
 				existing -> existing.addQuantity(quantity),
-				() -> this.cartItems.add(new CartItem(this, menu, quantity))
+				() -> this.cartItems.add(new CartItem(menu, quantity))
 			);
-	}
-
-	public boolean isCreatedBy(String email) {
-		return member.hasEmail(email);
 	}
 }
