@@ -66,6 +66,14 @@ public class Cart {
 		return cartItem;
 	}
 
+	public void addMenu(Menu menu, int quantity) {
+		findItemByMenuId(menu.getMenu_id())
+			.ifPresentOrElse(
+				existing -> existing.addQuantity(quantity),
+				() -> this.cartItems.add(new CartItem(this, menu, quantity))
+			);
+	}
+
 	public boolean isCreatedBy(String email) {
 		return member.hasEmail(email);
 	}
