@@ -68,7 +68,7 @@ public class Cart {
 	}
 
 	public boolean isCreatedBy(String email) {
-		return member.hasEmail(email);
+		return member.matchesEmail(email);
 	}
 
 	public void addMenu(Menu menu, int quantity) {

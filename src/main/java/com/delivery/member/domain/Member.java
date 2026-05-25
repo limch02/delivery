@@ -50,7 +50,7 @@ public class Member {
 		this.address = address;
 	}
 
-	public boolean hasEmail(String email) {
+	public boolean matchesEmail(String email) {
 		return this.email.equals(email);
 	}
 

@@ -70,7 +70,7 @@ public class Store {
 	}
 
 	public boolean isOwnedBy(String email) {
-		return owner.hasEmail(email);
+		return owner.matchesEmail(email);
 	}
 
 	public void update(String name, String category, int minOrderPrice, int deliveryFee,
