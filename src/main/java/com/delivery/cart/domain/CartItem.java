@@ -27,18 +27,13 @@ public class CartItem {
 	private Long cart_item_id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "cart_id", nullable = false)
-	private Cart cart;
-
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id", nullable = false)
 	private Menu menu;
 
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
-	public CartItem(Cart cart, Menu menu, int quantity) {
-		this.cart = cart;
+	public CartItem(Menu menu, int quantity) {
 		this.menu = menu;
 		this.quantity = quantity;
 	}
