@@ -57,6 +57,10 @@ public class Menu {
 		this.description = description;
 	}
 
+	public Long getStoreId() {
+		return store.getStore_id();
+	}
+
 	public boolean validateOwner(String email) {
 		return this.store.getOwner().getEmail().equals(email);
 	}
