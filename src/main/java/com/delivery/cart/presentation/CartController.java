@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,5 +59,15 @@ public class CartController {
 	) {
 		cartService.decreaseCartItemQuantity(userDetails.getUsername(), cartId, menuId);
 		return ResponseEntity.ok(ApiResponse.success(null));
+	}
+
+	@DeleteMapping("/{cartId}/items/{menuId}")
+	public ResponseEntity<Void> deleteCartItem(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable Long cartId,
+		@PathVariable Long menuId
+	) {
+		cartService.deleteCartItem(userDetails.getUsername(), cartId, menuId);
+		return ResponseEntity.noContent().build();
 	}
 }

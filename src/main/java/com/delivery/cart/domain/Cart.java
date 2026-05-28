@@ -61,10 +61,12 @@ public class Cart {
 			.findFirst();
 	}
 
-	public CartItem addItem(Menu menu, int quantity) {
-		CartItem cartItem = new CartItem(menu, quantity);
-		cartItems.add(cartItem);
-		return cartItem;
+	public void removeItem(CartItem cartItem) {
+		cartItems.remove(cartItem);
+	}
+
+	public boolean isCartItemEmpty(){
+		return cartItems.isEmpty();
 	}
 
 	public boolean isCreatedBy(String email) {
