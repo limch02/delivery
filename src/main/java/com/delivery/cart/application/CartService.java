@@ -31,12 +31,14 @@ public class CartService {
 	private final MemberRepository memberRepository;
 	private final MenuRepository menuRepository;
 
+	public CartResult getCart(String email) {
+		Cart cart = cartRepository.findByMemberEmailWithItems(email)
+			.orElseThrow(()->new CartException(CartErrorCode.CART_NOT_FOUND));
+		return CartResult.from(cart);
+	}
+
 	@Transactional
 	public CartResult addToCart(String email, CartAddCommand command) {
-		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-
 		Menu menu = menuRepository.findByIdWithStore(command.menuId())
 			.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 
@@ -45,7 +47,11 @@ public class CartService {
 		}
 
 		Cart cart = cartRepository.findByMemberEmailWithItems(email)
-			.orElseGet(() -> cartRepository.save(new Cart(member, menu.getStore())));
+			.orElseGet(() -> {
+				Member member = memberRepository.findByEmail(email)
+					.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+				return cartRepository.save(new Cart(member, menu.getStore()));
+			});
 
 		if (cart.hasDifferentStore(menu.getStoreId())) {
 			throw new CartException(CartErrorCode.DIFFERENT_STORE);
@@ -53,7 +59,7 @@ public class CartService {
 
 		cart.addMenu(menu, command.quantity());
 
-		return CartResult.from(cart, cart.getCartItems());
+		return CartResult.from(cart);
 	}
 
 	@Transactional
@@ -72,8 +78,8 @@ public class CartService {
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
 		if (cartItem.getQuantity() == 1) {
-			cart.getCartItems().remove(cartItem);
-			if (cart.getCartItems().isEmpty()) {
+			cart.removeItem(cartItem);
+			if (cart.isCartItemEmpty()) {
 				cartRepository.delete(cart);
 			}
 			return;

@@ -3,14 +3,13 @@ package com.delivery.cart.application.dto;
 import java.util.List;
 
 import com.delivery.cart.domain.Cart;
-import com.delivery.cart.domain.CartItem;
 
-public record CartResult(Long cartId, List<CartItemResult> items) {
+public record CartResult(Long cartId, List<CartItemResult> items, int totalPrice) {
 
-	public static CartResult from(Cart cart, List<CartItem> cartItems) {
-		List<CartItemResult> itemResults = cartItems.stream()
+	public static CartResult from(Cart cart) {
+		List<CartItemResult> itemResults = cart.getCartItems().stream()
 			.map(CartItemResult::from)
 			.toList();
-		return new CartResult(cart.getCart_id(), itemResults);
+		return new CartResult(cart.getCart_id(), itemResults, cart.getTotalPrice());
 	}
 }

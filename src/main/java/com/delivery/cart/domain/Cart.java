@@ -73,6 +73,10 @@ public class Cart {
 		return member.matchesEmail(email);
 	}
 
+	public int getTotalPrice() {
+		return cartItems.stream().mapToInt(CartItem::getSubtotal).sum();
+	}
+
 	public void addMenu(Menu menu, int quantity) {
 		findItemByMenuId(menu.getMenu_id())
 			.ifPresentOrElse(
