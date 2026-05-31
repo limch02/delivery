@@ -49,4 +49,8 @@ public class CartItem {
 	public void decreaseQuantity() {
 		this.quantity--;
 	}
+
+	public int getSubtotal() {
+		return menu.getPrice() * quantity;
+	}
 }
