@@ -81,6 +81,18 @@ public class CartService {
 		cartItem.decreaseQuantity();
 	}
 
+	@Transactional
+	public void deleteCartItem(String email, Long cartId, Long menuId) {
+		Cart cart = findCartWithOwnerCheck(email, cartId);
+		CartItem cartItem = cart.findItemByMenuId(menuId)
+			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
+
+		cart.removeItem(cartItem);
+		if (cart.isCartItemEmpty()) {
+			cartRepository.delete(cart);
+		}
+	}
+
 	private Cart findCartWithOwnerCheck(String email, Long cartId) {
 		Cart cart = cartRepository.findByIdWithItemsAndMember(cartId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
