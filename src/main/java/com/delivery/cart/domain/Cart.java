@@ -42,8 +42,7 @@ public class Cart {
 	@JoinColumn(name = "store_id")
 	private Store store;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "cart_id", nullable = false)
+	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartItem> cartItems = new ArrayList<>();
 
 	public Cart(Member member, Store store) {
@@ -55,14 +54,10 @@ public class Cart {
 		return !store.getStore_id().equals(storeId);
 	}
 
-	public Optional<CartItem> findItemByMenuId(Long menuId) {
+	private Optional<CartItem> findItemByMenuId(Long menuId) {
 		return cartItems.stream()
 			.filter(cartItem -> cartItem.getMenu().getMenu_id().equals(menuId))
 			.findFirst();
-	}
-
-	public void removeItem(CartItem cartItem) {
-		cartItems.remove(cartItem);
 	}
 
 	public boolean isCartItemEmpty(){
@@ -81,7 +76,32 @@ public class Cart {
 		findItemByMenuId(menu.getMenu_id())
 			.ifPresentOrElse(
 				existing -> existing.addQuantity(quantity),
-				() -> this.cartItems.add(new CartItem(menu, quantity))
+				() -> this.cartItems.add(new CartItem(this, menu, quantity))
 			);
+	}
+
+	public Optional<CartItem> increaseQuantity(Long menuId) {
+		return findItemByMenuId(menuId).map(cartItem -> {
+			cartItem.increaseQuantity();
+			return cartItem;
+		});
+	}
+
+	public Optional<CartItem> decreaseQuantity(Long menuId) {
+		return findItemByMenuId(menuId).map(cartItem -> {
+			if (cartItem.getQuantity() == 1) {
+				cartItems.remove(cartItem);
+			} else {
+				cartItem.decreaseQuantity();
+			}
+			return cartItem;
+		});
+	}
+
+	public Optional<CartItem> removeItem(Long menuId) {
+		return findItemByMenuId(menuId).map(cartItem -> {
+			cartItems.remove(cartItem);
+			return cartItem;
+		});
 	}
 }

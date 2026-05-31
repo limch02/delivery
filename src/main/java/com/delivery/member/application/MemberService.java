@@ -44,25 +44,24 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	public String login(LoginCommand command) {
-		Member member = memberRepository.findByEmail(command.email())
-			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
+		Member member = findMember(command.email());
 		member.validatePassword(passwordEncoder.matches(command.password(), member.getPassword()));
-
 		return jwtProvider.createToken(member.getMember_id(), member.getRole().name());
 	}
 
 	@Transactional(readOnly = true)
 	public MemberResult getMemberByEmail(String email) {
-		Member member = memberRepository.findByEmail(email)
-				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-		return MemberResult.from(member);
+		return MemberResult.from(findMember(email));
 	}
 
 	public String updateAddress(String email, String newAddress) {
-		Member member = memberRepository.findByEmail(email)
-				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+		Member member = findMember(email);
 		member.updateAddress(newAddress);
 		return member.getAddress();
+	}
+
+	public Member findMember(String email) {
+		return memberRepository.findByEmail(email)
+			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 	}
 }
