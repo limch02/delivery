@@ -38,6 +38,14 @@ public class CartService {
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 	}
 
+	public Cart findNonEmptyCart(String email) {
+		Cart cart = findCart(email);
+		if (cart.isCartItemEmpty()) {
+			throw new CartException(CartErrorCode.CART_EMPTY);
+		}
+		return cart;
+	}
+
 	@Transactional
 	public void clearCart(Cart cart) {
 		cartRepository.delete(cart);
