@@ -77,29 +77,34 @@ public class CartService {
 	@Transactional
 	public CartItemResult increaseCartItemQuantity(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		CartItem cartItem = cart.increaseQuantity(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
+		cart.increaseQuantity(cartItem);
 		return CartItemResult.from(cartItem);
 	}
 
 	@Transactional
-	public void decreaseCartItemQuantity(String email, Long cartId, Long menuId) {
+	public CartItemResult decreaseCartItemQuantity(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		cart.decreaseQuantity(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
+		cart.decreaseQuantity(cartItem);
 		if (cart.isCartItemEmpty()) {
 			cartRepository.delete(cart);
 		}
+		return CartItemResult.from(cartItem);
 	}
 
 	@Transactional
-	public void deleteCartItem(String email, Long cartId, Long menuId) {
+	public CartItemResult deleteCartItem(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		cart.removeItem(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
+		cart.removeItem(cartItem);
 		if (cart.isCartItemEmpty()) {
 			cartRepository.delete(cart);
 		}
+		return CartItemResult.from(cartItem);
 	}
 
 	private Cart findCartWithOwnerCheck(String email, Long cartId) {

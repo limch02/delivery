@@ -58,4 +58,8 @@ public class CartItem {
 	public int getSubtotal() {
 		return menu.getPrice() * quantity;
 	}
+
+	public boolean isLastOne() {
+		return quantity == 1;
+	}
 }

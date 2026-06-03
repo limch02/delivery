@@ -80,28 +80,23 @@ public class Cart {
 			);
 	}
 
-	public Optional<CartItem> increaseQuantity(Long menuId) {
-		return findItemByMenuId(menuId).map(cartItem -> {
-			cartItem.increaseQuantity();
-			return cartItem;
-		});
+	public Optional<CartItem> findItem(Long menuId){
+		return findItemByMenuId(menuId);
 	}
 
-	public Optional<CartItem> decreaseQuantity(Long menuId) {
-		return findItemByMenuId(menuId).map(cartItem -> {
-			if (cartItem.getQuantity() == 1) {
-				cartItems.remove(cartItem);
-			} else {
-				cartItem.decreaseQuantity();
-			}
-			return cartItem;
-		});
+	public void increaseQuantity(CartItem cartItem) {
+		cartItem.increaseQuantity();
 	}
 
-	public Optional<CartItem> removeItem(Long menuId) {
-		return findItemByMenuId(menuId).map(cartItem -> {
+	public void decreaseQuantity(CartItem cartItem) {
+		if (cartItem.isLastOne()) {
 			cartItems.remove(cartItem);
-			return cartItem;
-		});
+		} else {
+			cartItem.decreaseQuantity();
+		}
+	}
+
+	public void removeItem(CartItem cartItem) {
+		cartItems.remove(cartItem);
 	}
 }

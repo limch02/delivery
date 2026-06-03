@@ -61,22 +61,26 @@ public class CartController {
 	}
 
 	@PatchMapping("/{cartId}/items/{menuId}/decrease")
-	public ResponseEntity<ApiResponse<Void>> decreaseCartItem(
+	public ResponseEntity<ApiResponse<CartItemResponse>> decreaseCartItem(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable Long cartId,
 		@PathVariable Long menuId
 	) {
-		cartService.decreaseCartItemQuantity(userDetails.getUsername(), cartId, menuId);
-		return ResponseEntity.ok(ApiResponse.success(null));
+		CartItemResponse response = CartItemResponse.from(
+			cartService.decreaseCartItemQuantity(userDetails.getUsername(), cartId, menuId)
+		);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@DeleteMapping("/{cartId}/items/{menuId}")
-	public ResponseEntity<Void> deleteCartItem(
+	public ResponseEntity<ApiResponse<CartItemResponse>> deleteCartItem(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable Long cartId,
 		@PathVariable Long menuId
 	) {
-		cartService.deleteCartItem(userDetails.getUsername(), cartId, menuId);
-		return ResponseEntity.noContent().build();
+		CartItemResponse response = CartItemResponse.from(
+			cartService.deleteCartItem(userDetails.getUsername(), cartId, menuId)
+		);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }
