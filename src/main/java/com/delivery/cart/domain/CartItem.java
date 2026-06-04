@@ -27,13 +27,18 @@ public class CartItem {
 	private Long cart_item_id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "cart_id", nullable = false)
+	private Cart cart;
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "menu_id", nullable = false)
 	private Menu menu;
 
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
-	public CartItem(Menu menu, int quantity) {
+	public CartItem(Cart cart, Menu menu, int quantity) {
+		this.cart = cart;
 		this.menu = menu;
 		this.quantity = quantity;
 	}
@@ -52,5 +57,9 @@ public class CartItem {
 
 	public int getSubtotal() {
 		return menu.getPrice() * quantity;
+	}
+
+	public boolean isLastOne() {
+		return quantity == 1;
 	}
 }

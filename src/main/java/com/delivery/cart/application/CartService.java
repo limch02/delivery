@@ -8,14 +8,12 @@ import com.delivery.cart.domain.CartItem;
 import com.delivery.cart.exception.CartErrorCode;
 import com.delivery.cart.exception.CartException;
 import com.delivery.cart.repository.CartRepository;
+import com.delivery.member.application.MemberService;
 import com.delivery.member.domain.Member;
-import com.delivery.member.exception.MemberErrorCode;
-import com.delivery.member.exception.MemberException;
-import com.delivery.member.repository.MemberRepository;
+import com.delivery.menu.application.MenuService;
 import com.delivery.menu.domain.Menu;
 import com.delivery.menu.exception.MenuErrorCode;
 import com.delivery.menu.exception.MenuException;
-import com.delivery.menu.repository.MenuRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,19 +26,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartService {
 
 	private final CartRepository cartRepository;
-	private final MemberRepository memberRepository;
-	private final MenuRepository menuRepository;
+	private final MemberService memberService;
+	private final MenuService menuService;
 
 	public CartResult getCart(String email) {
-		Cart cart = cartRepository.findByMemberEmailWithItems(email)
-			.orElseThrow(()->new CartException(CartErrorCode.CART_NOT_FOUND));
-		return CartResult.from(cart);
+		return CartResult.from(findCart(email));
+	}
+
+	public Cart findCart(String email) {
+		return cartRepository.findByMemberEmailWithItems(email)
+			.orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+	}
+
+	public Cart findNonEmptyCart(String email) {
+		Cart cart = findCart(email);
+		if (cart.isCartItemEmpty()) {
+			throw new CartException(CartErrorCode.CART_EMPTY);
+		}
+		return cart;
+	}
+
+	@Transactional
+	public void clearCart(Cart cart) {
+		cartRepository.delete(cart);
 	}
 
 	@Transactional
 	public CartResult addToCart(String email, CartAddCommand command) {
-		Menu menu = menuRepository.findByIdWithStore(command.menuId())
-			.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
+		Menu menu = menuService.findMenuWithStore(command.menuId());
 
 		if (menu.isSoldOut()) {
 			throw new MenuException(MenuErrorCode.MENU_SOLD_OUT);
@@ -48,8 +61,7 @@ public class CartService {
 
 		Cart cart = cartRepository.findByMemberEmailWithItems(email)
 			.orElseGet(() -> {
-				Member member = memberRepository.findByEmail(email)
-					.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+				Member member = memberService.findMember(email);
 				return cartRepository.save(new Cart(member, menu.getStore()));
 			});
 
@@ -65,38 +77,34 @@ public class CartService {
 	@Transactional
 	public CartItemResult increaseCartItemQuantity(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		CartItem cartItem = cart.findItemByMenuId(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
-		cartItem.increaseQuantity();
+		cart.increaseQuantity(cartItem);
 		return CartItemResult.from(cartItem);
 	}
 
 	@Transactional
-	public void decreaseCartItemQuantity(String email, Long cartId, Long menuId) {
+	public CartItemResult decreaseCartItemQuantity(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		CartItem cartItem = cart.findItemByMenuId(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
-
-		if (cartItem.getQuantity() == 1) {
-			cart.removeItem(cartItem);
-			if (cart.isCartItemEmpty()) {
-				cartRepository.delete(cart);
-			}
-			return;
+		cart.decreaseQuantity(cartItem);
+		if (cart.isCartItemEmpty()) {
+			cartRepository.delete(cart);
 		}
-		cartItem.decreaseQuantity();
+		return CartItemResult.from(cartItem);
 	}
 
 	@Transactional
-	public void deleteCartItem(String email, Long cartId, Long menuId) {
+	public CartItemResult deleteCartItem(String email, Long cartId, Long menuId) {
 		Cart cart = findCartWithOwnerCheck(email, cartId);
-		CartItem cartItem = cart.findItemByMenuId(menuId)
+		CartItem cartItem = cart.findItem(menuId)
 			.orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
-
 		cart.removeItem(cartItem);
 		if (cart.isCartItemEmpty()) {
 			cartRepository.delete(cart);
 		}
+		return CartItemResult.from(cartItem);
 	}
 
 	private Cart findCartWithOwnerCheck(String email, Long cartId) {

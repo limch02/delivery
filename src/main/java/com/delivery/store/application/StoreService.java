@@ -2,10 +2,8 @@ package com.delivery.store.application;
 
 import java.util.List;
 
+import com.delivery.member.application.MemberService;
 import com.delivery.member.domain.Member;
-import com.delivery.member.exception.MemberErrorCode;
-import com.delivery.member.exception.MemberException;
-import com.delivery.member.repository.MemberRepository;
 import com.delivery.store.application.dto.StoreCreateCommand;
 import com.delivery.store.application.dto.StoreResult;
 import com.delivery.store.application.dto.StoreUpdateCommand;
@@ -25,12 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class StoreService {
 
 	private final StoreRepository storeRepository;
-	private final MemberRepository memberRepository;
+	private final MemberService memberService;
 
 	@Transactional
 	public void createStore(String email, StoreCreateCommand command) {
-		Member owner = memberRepository.findByEmail(email)
-				.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+		Member owner = memberService.findMember(email);
 
 		Store store = new Store(
 				owner,
@@ -48,9 +45,7 @@ public class StoreService {
 	}
 
 	public StoreResult getStore(Long storeId) {
-		Store store = storeRepository.findById(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-		return StoreResult.from(store);
+		return StoreResult.from(findStore(storeId));
 	}
 
 	public List<StoreResult> getAllStores() {
@@ -62,9 +57,7 @@ public class StoreService {
 
 	@Transactional
 	public void updateStore(String email, Long storeId, StoreUpdateCommand command) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
+		Store store = findStore(storeId);
 		if (!store.isOwnedBy(email)) {
 			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
 		}
@@ -74,12 +67,15 @@ public class StoreService {
 
 	@Transactional
 	public void deleteStore(String email, Long storeId) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
+		Store store = findStore(storeId);
 		if (!store.isOwnedBy(email)) {
 			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
 		}
 		storeRepository.delete(store);
+	}
+
+	public Store findStore(Long storeId) {
+		return storeRepository.findByIdWithOwner(storeId)
+			.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 	}
 }

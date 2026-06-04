@@ -9,10 +9,10 @@ import com.delivery.menu.domain.Menu;
 import com.delivery.menu.exception.MenuErrorCode;
 import com.delivery.menu.exception.MenuException;
 import com.delivery.menu.repository.MenuRepository;
+import com.delivery.store.application.StoreService;
 import com.delivery.store.domain.Store;
 import com.delivery.store.exception.StoreErrorCode;
 import com.delivery.store.exception.StoreException;
-import com.delivery.store.repository.StoreRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuService {
 
 	private final MenuRepository menuRepository;
-	private final StoreRepository storeRepository;
+	private final StoreService storeService;
 
 	public List<MenuResult> getMenus(Long storeId) {
 		return menuRepository.findAllByStoreId(storeId)
@@ -80,13 +80,17 @@ public class MenuService {
 
 	@Transactional
 	public void createMenu(String email, Long storeId, MenuCreateCommand command) {
-		Store store = storeRepository.findByIdWithOwner(storeId)
-				.orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+		Store store = storeService.findStore(storeId);
 
 		if (!store.isOwnedBy(email)) {
 			throw new StoreException(StoreErrorCode.NOT_STORE_OWNER);
 		}
 
 		menuRepository.save(new Menu(store, command.name(), command.price(), command.description()));
+	}
+
+	public Menu findMenuWithStore(Long menuId) {
+		return menuRepository.findByIdWithStore(menuId)
+			.orElseThrow(() -> new MenuException(MenuErrorCode.MENU_NOT_FOUND));
 	}
 }
