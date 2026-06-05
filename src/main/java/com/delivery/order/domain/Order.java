@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.delivery.cart.domain.Cart;
 import com.delivery.member.domain.Member;
+import com.delivery.order.exception.OrderErrorCode;
+import com.delivery.order.exception.OrderException;
 import com.delivery.store.domain.Store;
 
 import jakarta.persistence.CascadeType;
@@ -71,5 +73,16 @@ public class Order {
 
 		order.totalPrice = order.orderItems.stream().mapToInt(OrderItem::getSubtotal).sum();
 		return order;
+	}
+
+	public Long storeId() {
+		return store.getStore_id();
+	}
+
+	public void advanceStatus() {
+		if (!this.status.hasNext()) {
+			throw new OrderException(OrderErrorCode.INVALID_STATUS_TRANSITION);
+		}
+		this.status = this.status.next();
 	}
 }
