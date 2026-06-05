@@ -11,6 +11,8 @@ import com.delivery.cart.exception.CartException;
 import com.delivery.common.response.ApiResponse;
 import com.delivery.member.exception.MemberException;
 import com.delivery.menu.exception.MenuException;
+import com.delivery.order.exception.OrderException;
+import com.delivery.store.exception.StoreException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,12 +41,35 @@ public class GlobalExceptionHandler {
 			.body(ApiResponse.fail(e.getErrorMessage()));
 	}
 
+	@ExceptionHandler(StoreException.class)
+	public ResponseEntity<ApiResponse<?>> handleStoreException(StoreException e) {
+		HttpStatus status = switch (e.getStoreErrorCode()) {
+			case STORE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case NOT_STORE_OWNER -> HttpStatus.FORBIDDEN;
+		};
+		return ResponseEntity
+			.status(status)
+			.body(ApiResponse.fail(e.getErrorMessage()));
+	}
+
 	@ExceptionHandler(CartException.class)
 	public ResponseEntity<ApiResponse<?>> handleCartException(CartException e) {
 		HttpStatus status = switch (e.getCartErrorCode()) {
 			case DIFFERENT_STORE, CART_EMPTY -> HttpStatus.BAD_REQUEST;
 			case CART_NOT_FOUND, CART_ITEM_NOT_FOUND -> HttpStatus.NOT_FOUND;
 			case CART_ITEM_FORBIDDEN -> HttpStatus.FORBIDDEN;
+		};
+		return ResponseEntity
+			.status(status)
+			.body(ApiResponse.fail(e.getErrorMessage()));
+	}
+
+	@ExceptionHandler(OrderException.class)
+	public ResponseEntity<ApiResponse<?>> handleOrderException(OrderException e) {
+		HttpStatus status = switch (e.getOrderErrorCode()) {
+			case ORDER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case NOT_ORDER_STORE_OWNER -> HttpStatus.FORBIDDEN;
+			case INVALID_STATUS_TRANSITION -> HttpStatus.BAD_REQUEST;
 		};
 		return ResponseEntity
 			.status(status)
